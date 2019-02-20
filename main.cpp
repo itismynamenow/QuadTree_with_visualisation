@@ -3,7 +3,7 @@
 
 //#include "qtreevisualisationwidget.h"
 //#include "quadtree.h"
-#include "mainwindow.h"
+#include "main_window.h"
 
 /*
  *  QuadTree needs:
@@ -45,37 +45,8 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-//    auto treeElementPtr0 = std::make_shared<QuadTreeElement<float>>(QuadTreeElement<float>(AABB<float>(755,755,788,788)));
-//    auto treeElementPtr1 = std::make_shared<QuadTreeElement<float>>(QuadTreeElement<float>(AABB<float>(1,1,2,3)));
-//    auto treeElementPtr2 = std::make_shared<QuadTreeElement<float>>(QuadTreeElement<float>(AABB<float>(1,0,2,4)));
-//    auto treeElementPtr3 = std::make_shared<QuadTreeElement<float>>(QuadTreeElement<float>(AABB<float>(5,5,2,2)));
-
-//    vector<shared_ptr<QuadTreeElement<float>>> treeElementsVector{treeElementPtr0,treeElementPtr1,treeElementPtr2,treeElementPtr3};
-
-//    QuadTreeSlow<float> quadTree(treeElementsVector,AABB<float>(0,0,799,799),6,2);
-
-//    quadTree.printElementsQuads();
-
-//    MyCustomElementsHolder holder;
-//    holder.addElement(AABB<int>(755,755,788,788),Qt::yellow);
-//    holder.addElement(AABB<int>(756,756,789,789),Qt::yellow);
-//    holder.addElement(AABB<int>(155,155,788,788),Qt::yellow);
-//    holder.addElement(AABB<int>(122,122,123,123),Qt::yellow);
-
-//    auto overlappingObject = holder.getOverlappingObjects();
-//    for(auto &object: overlappingObject){
-//        object->aabb.print();
-//    }
     QApplication a(argc, argv);
     MainWindow w;
     w.show();
     return a.exec();
 }
-
-//int main(int argc, char *argv[])
-//{
-//    QApplication a(argc, argv);
-//    MainWindow w;
-//    w.show();
-//    return a.exec();
-//}

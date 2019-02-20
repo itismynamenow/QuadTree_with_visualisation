@@ -27,12 +27,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    main.cpp \
-    mainwindow.cpp \
-    qtreevisualisationwidget.cpp \
-    quadtree.cpp
+    main.cpp
 
 HEADERS += \
-    mainwindow.h \
-    qtreevisualisationwidget.h \
-    quadtree.h
+    quad_tree.h \
+    quad_tree_slow.h \
+    quad_tree_widget.h \
+    main_window.h
