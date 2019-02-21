@@ -97,7 +97,7 @@ public:
     virtual ELEMENTS_PTR getElementsThatOverlap(const AABB<T> &aabb) const=0;
     virtual ELEMENTS_PTR getAllOverlappingElements() const=0;
     virtual vector<tuple<ELEMENT_PTR,ELEMENT_PTR>> getAllOverlappingElementTuples() const=0;
-    virtual shared_ptr<QuadTreeNode<T>> getRootNode() const=0;
+    virtual const shared_ptr<QuadTreeNode<T>> getRootNode() const=0;
     virtual void reset()=0;
 };
 

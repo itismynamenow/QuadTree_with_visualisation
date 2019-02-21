@@ -68,7 +68,7 @@ public:
     virtual void reset() override{
         rootNode.reset();
     }
-    virtual NODE_PTR getRootNode() const override{
+    virtual const NODE_PTR getRootNode() const override{
         return rootNode;
     }
 
@@ -94,9 +94,9 @@ protected:
             return currentRootNode;
         }
     }
-    inline array<ELEMENTS_PTR,4> splitElementsPtrsByQuadrant(const ELEMENTS_PTR &elementsPtrs,  const array<AABB<T>,4> &boundingBoxes){
+    inline array<ELEMENTS_PTR,4> splitElementsPtrsByQuadrant(const ELEMENTS_PTR &elementsPtrs,  const array<AABB<T>,4> &boundingBoxes) const{
         array<ELEMENTS_PTR,4> elementsPtrsByQuadrant;
-        for(auto element: elementsPtrs){
+        for(auto const &element: elementsPtrs){
             for(int i=0;i<4;i++){
                 if(element->aabb.doesOverlap(boundingBoxes.at(i))){
                     elementsPtrsByQuadrant.at(i).push_back(element);
@@ -120,7 +120,7 @@ protected:
             }
         }
         else{
-            for(auto child: node->children){
+            for(auto const &child: node->children){
                 getAllOverlappingElementTuplesRecursively(tuples,child);
             }
         }
@@ -142,7 +142,7 @@ protected:
             }
         }
         else{
-            for(auto child: node->children){
+            for(auto const &child: node->children){
                 getAllOverlappingElementsRecursively(elementSet,child);
             }
         }

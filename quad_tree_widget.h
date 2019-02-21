@@ -13,6 +13,7 @@
 
 #include "quad_tree.h"
 #include "quad_tree_slow.h"
+#include "quad_tree_moderate.h"
 using std::vector;
 using std::array;
 using std::shared_ptr;
@@ -151,6 +152,7 @@ struct MyCustomElementsHolder{
     }
     vector<shared_ptr<MyCustomElement>> elementsPtrs;
     unique_ptr<QuadTree<int>> quadTree;
+    QuadTreeModerate<int> qtm;
     AABB<int> boundingBox{0,0,799,799};
 };
 
@@ -224,20 +226,7 @@ protected:
         }
 
     }
-    void drawSubtree(QPainter &painter,const NODE_U_PTR &node){
-        if(!node || node->getElements().size()>0){
-        }else{
-            int xCtr = node->getBoundingBox().xMin + (node->getBoundingBox().xMax - node->getBoundingBox().xMin)/2;
-            int yCtr = node->getBoundingBox().yMin + (node->getBoundingBox().yMax - node->getBoundingBox().yMin)/2;
-            painter.drawLine(node->getBoundingBox().xMin,yCtr,node->getBoundingBox().xMax,yCtr);
-            painter.drawLine(xCtr,node->getBoundingBox().yMin,xCtr,node->getBoundingBox().yMax);
-            for(auto &child: node->getChildren()){
-                drawSubtree(painter,child);
-            }
-        }
-    }
-
-    void drawSubtree(QPainter &painter,NODE_S_PTR node){
+    void drawSubtree(QPainter &painter,const NODE_S_PTR &node){
         if(!node || node->getElements().size()>0){
         }else{
             int xCtr = node->getBoundingBox().xMin + (node->getBoundingBox().xMax - node->getBoundingBox().xMin)/2;
