@@ -151,7 +151,8 @@ struct MyCustomElementsHolder{
 class QTreeVisualisationWidget: public QWidget
 {
     Q_OBJECT
-    typedef unique_ptr<QuadTreeSlowNode<int>> NODE_U_PTR;
+    typedef unique_ptr<QuadTreeNode<int>> NODE_U_PTR;
+    typedef shared_ptr<QuadTreeNode<int>> NODE_S_PTR;
 public:
     QTreeVisualisationWidget(){
         this->setMinimumSize(800,800);
@@ -218,13 +219,26 @@ protected:
 
     }
     void drawSubtree(QPainter &painter,const NODE_U_PTR &node){
-        if(!node || node->quadTreeElementsPtrs.size()>0){
+        if(!node || node->getElements().size()>0){
         }else{
-            int xCtr = node->boundingBox.xMin + (node->boundingBox.xMax - node->boundingBox.xMin)/2;
-            int yCtr = node->boundingBox.yMin + (node->boundingBox.yMax - node->boundingBox.yMin)/2;
-            painter.drawLine(node->boundingBox.xMin,yCtr,node->boundingBox.xMax,yCtr);
-            painter.drawLine(xCtr,node->boundingBox.yMin,xCtr,node->boundingBox.yMax);
-            for(auto &child: node->children){
+            int xCtr = node->getBoundingBox().xMin + (node->getBoundingBox().xMax - node->getBoundingBox().xMin)/2;
+            int yCtr = node->getBoundingBox().yMin + (node->getBoundingBox().yMax - node->getBoundingBox().yMin)/2;
+            painter.drawLine(node->getBoundingBox().xMin,yCtr,node->getBoundingBox().xMax,yCtr);
+            painter.drawLine(xCtr,node->getBoundingBox().yMin,xCtr,node->getBoundingBox().yMax);
+            for(auto &child: node->getChildren()){
+                drawSubtree(painter,child);
+            }
+        }
+    }
+
+    void drawSubtree(QPainter &painter,NODE_S_PTR node){
+        if(!node || node->getElements().size()>0){
+        }else{
+            int xCtr = node->getBoundingBox().xMin + (node->getBoundingBox().xMax - node->getBoundingBox().xMin)/2;
+            int yCtr = node->getBoundingBox().yMin + (node->getBoundingBox().yMax - node->getBoundingBox().yMin)/2;
+            painter.drawLine(node->getBoundingBox().xMin,yCtr,node->getBoundingBox().xMax,yCtr);
+            painter.drawLine(xCtr,node->getBoundingBox().yMin,xCtr,node->getBoundingBox().yMax);
+            for(auto &child: node->getChildren()){
                 drawSubtree(painter,child);
             }
         }

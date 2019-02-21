@@ -14,6 +14,12 @@ using std::unique_ptr;
 using std::tuple;
 
 enum QUADRANT{LU=0,LB=1,RU=2,RB=3,CENTER=4};
+template <class T>
+class QuadTree;
+template <class T>
+struct QuadTreeElement;
+template <class T>
+struct QuadTreeNode;
 
 //Axis aligned bounding box
 template <class T>
@@ -66,43 +72,34 @@ struct QuadTreeElement{
     AABB<T> aabb;
 };
 
-
-template <class T>
-struct QuadTreeSlowNode{
-    array<unique_ptr<QuadTreeSlowNode<T>>,4> children;
-    vector<shared_ptr<QuadTreeElement<T>>> quadTreeElementsPtrs;
-    AABB<T> boundingBox;
-};
-
 template <class T>
 struct QuadTreeNode{
-    virtual const array<unique_ptr<QuadTreeNode<T>>,4> &getChildren()=0;
-    virtual const vector<shared_ptr<QuadTreeElement<T>>> &getElements()=0;
-    virtual const AABB<T> getBoundingBox();
+    typedef shared_ptr<QuadTreeNode<T>> NODE_PTR;
+    typedef typename QuadTree<T>::ELEMENTS_PTR ELEMENTS_PTR;
+
+    virtual const array<NODE_PTR,4> getChildren() const=0;
+    virtual const ELEMENTS_PTR &getElements() const=0;
+    virtual const AABB<T> &getBoundingBox() const=0;
 };
+
 
 template <class T>
 class QuadTree{
 
-    typedef unique_ptr<QuadTreeSlowNode<T>> NODE_U_PTR;
-    typedef vector<shared_ptr<QuadTreeElement<T>>> ELEMENTS_S_PRT;
-    typedef shared_ptr<QuadTreeElement<T>> ELEMENT_S_PRT;
+public:
+    typedef vector<shared_ptr<QuadTreeElement<T>>> ELEMENTS_PTR;
+    typedef shared_ptr<QuadTreeElement<T>> ELEMENT_PTR;
 
 public:
     QuadTree(){}
     virtual ~QuadTree(){}
-    virtual void setElements(const ELEMENTS_S_PRT &inputElementsPtrs, const AABB<T> &boundingBox, int depth=6, int nodeCapacity=6)=0;
-    virtual ELEMENTS_S_PRT getElementsThatOverlap(const AABB<T> &aabb)=0;
-    virtual vector<tuple<ELEMENT_S_PRT,ELEMENT_S_PRT>> getAllOverlappingElementsTuples()=0;
+    virtual void setElements(const ELEMENTS_PTR &inputElementsPtrs, const AABB<T> &boundingBox, int depth=6, int nodeCapacity=6)=0;
+    virtual ELEMENTS_PTR getElementsThatOverlap(const AABB<T> &aabb)=0;
+    virtual vector<tuple<ELEMENT_PTR,ELEMENT_PTR>> getAllOverlappingElementsTuples()=0;
     virtual void reset()=0;
-    virtual void printElementsQuads(){
-        for(auto &quadTreeElementPtr: quadTreeElementsPtrs){
-            quadTreeElementPtr->aabb.print();
-        }
-    }
-    virtual NODE_U_PTR& getRootNode()=0;
+    virtual shared_ptr<QuadTreeNode<T>> getRootNode()=0;
+
 protected:
-    vector<shared_ptr<QuadTreeElement<T>>> quadTreeElementsPtrs;
 };
 
 
