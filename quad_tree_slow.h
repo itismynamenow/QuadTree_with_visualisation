@@ -1,5 +1,6 @@
 #ifndef QUADTREESLOW_H
 #define QUADTREESLOW_H
+#include <set>
 #include <quad_tree.h>
 
 
@@ -37,6 +38,8 @@ protected:
     typedef typename QuadTree<T>::ELEMENT_PTR ELEMENT_PTR;
     typedef typename QuadTreeNode<T>::NODE_PTR NODE_PTR;
     typedef typename QuadTreeSlowNode<T>::NODE_SLOW_PTR NODE_SLOW_PTR;
+    typedef bool(*ELEMENT_COMPARATOR)(const ELEMENT_PTR &x, const ELEMENT_PTR &y);
+    typedef std::set<ELEMENT_PTR,ELEMENT_COMPARATOR> ELEMENT_SET;
 
 public:
     QuadTreeSlow(){std::cout<<"Quad tree made"<<std::endl;}
@@ -46,20 +49,26 @@ public:
     virtual void setElements(const ELEMENTS_PTR &inputElementsPtrs, const AABB<T> &boundingBox, int depth=6, int nodeCapacity=6) override{
         buildTree(inputElementsPtrs,boundingBox,depth,nodeCapacity);
     }
-    virtual ELEMENTS_PTR getElementsThatOverlap(const AABB<T> &aabb) override{
+    virtual ELEMENTS_PTR getElementsThatOverlap(const AABB<T> &aabb) const override{
         ELEMENTS_PTR result;
         //TODO
         return result;
     }
-    virtual vector<tuple<ELEMENT_PTR,ELEMENT_PTR>> getAllOverlappingElementsTuples() override{
+    virtual ELEMENTS_PTR getAllOverlappingElements() const override{
+        ELEMENT_COMPARATOR comparator = [](const ELEMENT_PTR &x, const ELEMENT_PTR &y){ return x.get() < y.get(); };
+        ELEMENT_SET elementSet(comparator);
+        getAllOverlappingElementsRecursively(elementSet,rootNode);
+        return ELEMENTS_PTR(elementSet.begin(),elementSet.end());
+    }
+    virtual vector<tuple<ELEMENT_PTR,ELEMENT_PTR>> getAllOverlappingElementTuples() const override{
         vector<tuple<ELEMENT_PTR,ELEMENT_PTR>> overlappingTuples;
-        getAllOverlappingElementsTuplesRecursively(overlappingTuples,rootNode);
+        getAllOverlappingElementTuplesRecursively(overlappingTuples,rootNode);
         return overlappingTuples;
     }
     virtual void reset() override{
         rootNode.reset();
     }
-    virtual NODE_PTR getRootNode() override{
+    virtual NODE_PTR getRootNode() const override{
         return rootNode;
     }
 
@@ -96,7 +105,7 @@ protected:
         }
         return elementsPtrsByQuadrant;
     }
-    void getAllOverlappingElementsTuplesRecursively(vector<tuple<ELEMENT_PTR,ELEMENT_PTR>> &tuples, const NODE_SLOW_PTR &node){
+    void getAllOverlappingElementTuplesRecursively(vector<tuple<ELEMENT_PTR,ELEMENT_PTR>> &tuples, const NODE_SLOW_PTR &node) const{
         auto &elements = node->elementsPtr;
         if(node == nullptr){
             return;
@@ -112,7 +121,29 @@ protected:
         }
         else{
             for(auto child: node->children){
-                getAllOverlappingElementsTuplesRecursively(tuples,child);
+                getAllOverlappingElementTuplesRecursively(tuples,child);
+            }
+        }
+    }
+
+    void getAllOverlappingElementsRecursively(ELEMENT_SET &elementSet, const NODE_SLOW_PTR &node) const{
+        auto &nodeElements = node->elementsPtr;
+        if(node == nullptr){
+            return;
+        }
+        else if(nodeElements.size()>1){
+            for(int i=0;i<nodeElements.size();i++){
+                for(int j=i+1;j<nodeElements.size();j++){
+                    if(nodeElements.at(i)->doesOverlap(nodeElements.at(j)->aabb)){
+                        elementSet.insert(nodeElements.at(i));
+                        elementSet.insert(nodeElements.at(j));
+                    }
+                }
+            }
+        }
+        else{
+            for(auto child: node->children){
+                getAllOverlappingElementsRecursively(elementSet,child);
             }
         }
     }

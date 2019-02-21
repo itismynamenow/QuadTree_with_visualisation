@@ -58,20 +58,26 @@ struct MyCustomElementsHolder{
         quadTree->setElements(elementsCastedPtrs,boundingBox,6,4);
     }
     vector<shared_ptr<MyCustomElement>> getOverlappingObjects(){
-        vector<shared_ptr<MyCustomElement>> overlappingElements;
-        auto elementPtrsTuples = quadTree->getAllOverlappingElementsTuples();
-        if(elementPtrsTuples.size() > 0){
-            for(auto &tuple: elementPtrsTuples){
-                overlappingElements.push_back(std::static_pointer_cast<MyCustomElement>(std::get<0>(tuple)));
-                overlappingElements.push_back(std::static_pointer_cast<MyCustomElement>(std::get<1>(tuple)));
-            }
-            std::sort(overlappingElements.begin(),overlappingElements.end());
-            overlappingElements.erase(
-                        std::unique(overlappingElements.begin(),overlappingElements.end()),
-                        overlappingElements.end());
-        }
+//        vector<shared_ptr<MyCustomElement>> overlappingElements;
+//        auto elementPtrsTuples = quadTree->getAllOverlappingElementTuples();
+//        if(elementPtrsTuples.size() > 0){
+//            for(auto &tuple: elementPtrsTuples){
+//                overlappingElements.push_back(std::static_pointer_cast<MyCustomElement>(std::get<0>(tuple)));
+//                overlappingElements.push_back(std::static_pointer_cast<MyCustomElement>(std::get<1>(tuple)));
+//            }
+//            std::sort(overlappingElements.begin(),overlappingElements.end());
+//            overlappingElements.erase(
+//                        std::unique(overlappingElements.begin(),overlappingElements.end()),
+//                        overlappingElements.end());
+//        }
 
-        return overlappingElements;
+//        return overlappingElements;
+        auto overlappingElements = quadTree->getAllOverlappingElements();
+        vector<shared_ptr<MyCustomElement>> overlappingElementsCasted(overlappingElements.size());
+        for(int i=0;i<overlappingElements.size();i++){
+            overlappingElementsCasted.at(i) = std::static_pointer_cast<MyCustomElement>(overlappingElements.at(i));
+        }
+        return overlappingElementsCasted;
     }
     void reset(){
         elementsPtrs.clear();
@@ -79,7 +85,7 @@ struct MyCustomElementsHolder{
     }
     void update(){
 
-        auto overlappingTuples = quadTree->getAllOverlappingElementsTuples();
+        auto overlappingTuples = quadTree->getAllOverlappingElementTuples();
         for(auto overlapingTuple: overlappingTuples){
             auto element0 = std::static_pointer_cast<MyCustomElement>(std::get<0>(overlapingTuple));
             auto element1 = std::static_pointer_cast<MyCustomElement>(std::get<1>(overlapingTuple));
