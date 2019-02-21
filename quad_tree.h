@@ -19,7 +19,7 @@ class QuadTree;
 template <class T>
 struct QuadTreeElement;
 template <class T>
-struct QuadTreeNode;
+class QuadTreeVisualionHelper;
 
 //Axis aligned bounding box
 template <class T>
@@ -73,17 +73,6 @@ struct QuadTreeElement{
 };
 
 template <class T>
-struct QuadTreeNode{
-    typedef shared_ptr<QuadTreeNode<T>> NODE_PTR;
-    typedef typename QuadTree<T>::ELEMENTS_PTR ELEMENTS_PTR;
-
-    virtual const array<NODE_PTR,4> getChildren() const=0;
-    virtual const ELEMENTS_PTR &getElements() const=0;
-    virtual const AABB<T> &getBoundingBox() const=0;
-};
-
-
-template <class T>
 class QuadTree{
 
 public:
@@ -97,11 +86,14 @@ public:
     virtual ELEMENTS_PTR getElementsThatOverlap(const AABB<T> &aabb) const=0;
     virtual ELEMENTS_PTR getAllOverlappingElements() const=0;
     virtual vector<tuple<ELEMENT_PTR,ELEMENT_PTR>> getAllOverlappingElementTuples() const=0;
-    virtual const shared_ptr<QuadTreeNode<T>> getRootNode() const=0;
     virtual void reset()=0;
+    virtual const QuadTreeVisualionHelper<T> *getVisualisationHelper() const=0;
 };
 
-
-
+template <class T>
+class QuadTreeVisualionHelper{
+public:
+    virtual vector<AABB<T>> getNonLeafNodesBoundingBoxes() const=0;
+};
 
 #endif // QUADTREE_H

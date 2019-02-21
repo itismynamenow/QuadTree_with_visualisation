@@ -3,27 +3,14 @@
 #include <set>
 #include <quad_tree.h>
 
+template <class T>
+class QuadTreeSlowVisualionHelper;
 
 template <class T>
-struct QuadTreeSlowNode: public QuadTreeNode<T>{
+struct QuadTreeSlowNode{
 
-    typedef typename QuadTreeNode<T>::NODE_PTR NODE_PTR;
-    typedef typename QuadTreeNode<T>::ELEMENTS_PTR ELEMENTS_PTR;
+    typedef typename QuadTree<T>::ELEMENTS_PTR ELEMENTS_PTR;
     typedef shared_ptr<QuadTreeSlowNode<T>> NODE_SLOW_PTR;
-
-    virtual const array<NODE_PTR,4> getChildren() const override{
-        array<NODE_PTR,4> castedChildren;
-        for(int i=0;i<4;i++){
-            castedChildren.at(i) = children.at(i);
-        }
-        return castedChildren;
-    }
-    virtual const ELEMENTS_PTR &getElements() const override{
-        return elementsPtr;
-    }
-    virtual const AABB<T> &getBoundingBox() const override{
-        return boundingBox;
-    }
 
     array<NODE_SLOW_PTR,4> children;
     ELEMENTS_PTR elementsPtr;
@@ -36,13 +23,14 @@ class QuadTreeSlow: public QuadTree<T>{
 protected:
     typedef typename QuadTree<T>::ELEMENTS_PTR ELEMENTS_PTR;
     typedef typename QuadTree<T>::ELEMENT_PTR ELEMENT_PTR;
-    typedef typename QuadTreeNode<T>::NODE_PTR NODE_PTR;
     typedef typename QuadTreeSlowNode<T>::NODE_SLOW_PTR NODE_SLOW_PTR;
     typedef bool(*ELEMENT_COMPARATOR)(const ELEMENT_PTR &x, const ELEMENT_PTR &y);
     typedef std::set<ELEMENT_PTR,ELEMENT_COMPARATOR> ELEMENT_SET;
 
+    friend class QuadTreeSlowVisualionHelper<T>;
+
 public:
-    QuadTreeSlow(){std::cout<<"Quad tree made"<<std::endl;}
+    QuadTreeSlow(){}
     QuadTreeSlow(const ELEMENTS_PTR &inputElementsPtrs, const AABB<T> &boundingBox, int depth=6, int nodeCapacity=6){
         buildTree(inputElementsPtrs,boundingBox,depth,nodeCapacity);
     }
@@ -68,8 +56,8 @@ public:
     virtual void reset() override{
         rootNode.reset();
     }
-    virtual const NODE_PTR getRootNode() const override{
-        return rootNode;
+    virtual const QuadTreeVisualionHelper<T> *getVisualisationHelper() const override{
+        return &visualisationHelper;
     }
 
 protected:
@@ -149,6 +137,28 @@ protected:
     }
 
     shared_ptr<QuadTreeSlowNode<T>> rootNode;
+    QuadTreeSlowVisualionHelper<T> visualisationHelper{this};
+};
+
+template <class T>
+class QuadTreeSlowVisualionHelper: public QuadTreeVisualionHelper<T>{
+public:
+    QuadTreeSlowVisualionHelper(QuadTreeSlow<T> *quadTree):quadTree(quadTree){}
+    virtual vector<AABB<T>> getNonLeafNodesBoundingBoxes() const{
+        vector<AABB<T>> boundingBoxes;
+        getNonLeafNodesBoundingBoxesRecursivly(boundingBoxes,quadTree->rootNode);
+        return boundingBoxes;
+    }
+private:
+     QuadTreeSlow<T> *quadTree;
+     void getNonLeafNodesBoundingBoxesRecursivly(vector<AABB<T>> &boundingBoxes, shared_ptr<QuadTreeSlowNode<T>> node) const{
+         if(node && node->elementsPtr.size()==0){
+             boundingBoxes.push_back(node->boundingBox);
+             for(auto &child: node->children){
+                 getNonLeafNodesBoundingBoxesRecursivly(boundingBoxes,child);
+             }
+         }
+     }
 };
 
 #endif // QUADTREESLOW_H
