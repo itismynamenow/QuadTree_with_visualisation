@@ -4,6 +4,7 @@
 //#include "qtreevisualisationwidget.h"
 //#include "quadtree.h"
 #include "main_window.h"
+#include "quad_tree_benchmark.h"
 
 /*
  *  QuadTree needs:
@@ -45,8 +46,22 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    MainWindow w;
-    w.show();
-    return a.exec();
+    bool benchmark = true;
+    if(benchmark){
+        QuadTree<int> *quadTree = new QuadTreeSlow<int>();
+        QuadTreeBenchmark<int>().testQuadTree(
+                    quadTree,
+                    10,
+                    100);
+        quadTree = new QuadTreeModerate<int>();
+                QuadTreeBenchmark<int>().testQuadTree(
+                            quadTree,
+                            10,
+                            100);
+    }else{
+        QApplication a(argc, argv);
+        MainWindow w;
+        w.show();
+        return a.exec();
+    }
 }

@@ -22,7 +22,8 @@ template <class T>
 class QuadTreeVisualionHelper;
 
 //Axis aligned bounding box
-template <class T>
+template <class T,
+          typename std::enable_if<std::is_arithmetic<T>::value>::type* = nullptr>
 struct AABB{
     AABB():xMin(0),yMin(0),xMax(0),yMax(0){}
     AABB(T xMin,T yMin,T xMax,T yMax):xMin(xMin),yMin(yMin),xMax(xMax),yMax(yMax){}
