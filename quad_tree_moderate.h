@@ -28,8 +28,8 @@ template <class T>
 class QuadTreeModerate: public QuadTree<T>{
 
 public:
-    typedef vector<shared_ptr<QuadTreeElement<T>>> ELEMENTS_PTR;
-    typedef shared_ptr<QuadTreeElement<T>> ELEMENT_PTR;
+    typedef typename QuadTree<T>::ELEMENTS_PTR ELEMENTS_PTR;
+    typedef typename QuadTree<T>::ELEMENT_PTR ELEMENT_PTR;
     typedef std::unordered_map<int,vector<int>> MAP;
     typedef std::unordered_set<int> ELEMENT_ID_SET;
 //    typedef bool(*ELEMENT_COMPARATOR)(const ELEMENT_PTR &x, const ELEMENT_PTR &y);

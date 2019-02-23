@@ -48,24 +48,21 @@ int main(int argc, char *argv[])
 {
     bool benchmark = true;
     if(benchmark){
-        QuadTree<int> *quadTree = new QuadTreeSlow<int>();
-//        QuadTreeBenchmark<int>().testQuadTree(
-//                    quadTree,
-//                    1,
-//                    40);
+        QuadTree<int> *quadTree;
         quadTree = new QuadTreeModerate<int>();
                 QuadTreeBenchmark<int>().testQuadTree(
                             quadTree,
                             10,
-                            1000
+                            10000
 //                            ,{
 //                                QUAD_TREE_BENCHMARK_TYPE::SET_ELEMENTS,
 //                                QUAD_TREE_BENCHMARK_TYPE::GET_ALL_OVERLAPPING_TUPLES}
                             );
+        delete quadTree;
     }else{
-        QApplication a(argc, argv);
-        MainWindow w;
-        w.show();
-        return a.exec();
+//        QApplication a(argc, argv);
+//        MainWindow w;
+//        w.show();
+//        return a.exec();
     }
 }
