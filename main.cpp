@@ -49,15 +49,18 @@ int main(int argc, char *argv[])
     bool benchmark = true;
     if(benchmark){
         QuadTree<int> *quadTree = new QuadTreeSlow<int>();
-        QuadTreeBenchmark<int>().testQuadTree(
-                    quadTree,
-                    10,
-                    100);
+//        QuadTreeBenchmark<int>().testQuadTree(
+//                    quadTree,
+//                    1,
+//                    40);
         quadTree = new QuadTreeModerate<int>();
                 QuadTreeBenchmark<int>().testQuadTree(
                             quadTree,
-                            10,
-                            100);
+                            20,
+                            400,
+                            {
+                                QUAD_TREE_BENCHMARK_TYPE::SET_ELEMENTS}
+                            );
     }else{
         QApplication a(argc, argv);
         MainWindow w;

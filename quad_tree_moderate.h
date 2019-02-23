@@ -3,10 +3,16 @@
 #include <quad_tree.h>
 #include <unordered_map>
 #include <set>
+#include <unordered_set>
 template <class T>
 class QuadTreeModerate;
 template <class T>
 class QuadTreeModerateVisualionHelper;
+
+/*
+ * TODO:
+ *  -Relace ELEMENT by ids
+ */
 
 template <class T>
 struct QuadTreeModerateNode{
@@ -44,7 +50,9 @@ public:
     virtual void setElements(const ELEMENTS_PTR &inputElementsPtrs, const AABB<T> &boundingBox, int depth=6, int nodeCapacity=6){
         buildTree(inputElementsPtrs,boundingBox,depth,nodeCapacity);
     }
-    virtual ELEMENTS_PTR getElementsThatOverlap(const AABB<T> &aabb) const override{}
+    virtual ELEMENTS_PTR getElementsThatOverlap(const AABB<T> &aabb) const override{
+        ELEMENTS_PTR placeHolder;
+        return placeHolder;}
     virtual ELEMENTS_PTR getAllOverlappingElements() const override{
         ELEMENT_COMPARATOR comparator = [](const ELEMENT_PTR &x, const ELEMENT_PTR &y){ return x.get() < y.get(); };
         ELEMENT_SET elementSet(comparator);
@@ -74,7 +82,11 @@ protected:
                            int nodeCapacity){
         reset();
         elementsPtrs = inputElementsPtrs;
-        rootId = makeSubtree(elementsPtrs,boundingBox,depth,nodeCapacity);
+        vector<int> elementsId(inputElementsPtrs.size());
+        for(int i=0;i<inputElementsPtrs.size();i++){
+            elementsId.at(i) = i;
+        }
+        rootId = makeSubtree(inputElementsPtrs,elementsId,boundingBox,depth,nodeCapacity);
     }
 
     int makeSubtree(const ELEMENTS_PTR &elementsPtrs,
@@ -97,6 +109,29 @@ protected:
         }
         return rootId;
     }
+
+    int makeSubtree(const ELEMENTS_PTR &elementsPtrs,
+                    const vector<int> &elementsId,
+                    const AABB<T> &boundingBox,
+                    int levelRemaining,
+                    int nodeCapacity)
+    {
+        int rootId = nodes.size();
+        nodes.push_back(QuadTreeModerateNode<T>());
+        boundingBoxes.push_back(boundingBox);
+        if(elementsPtrs.size() <= nodeCapacity || levelRemaining == 0){
+            nodeIdToElementId[rootId] = elementsPtrs;
+        }else{
+            const array<AABB<T>,4> boundingBoxes = boundingBox.split();
+            auto pointsIdByQuadrant = splitElementsIdByQuadrant(elementsPtrs,elementsId,boundingBoxes);
+            for(int i=0;i<4;i++){
+                int childId = makeSubtree(elementsPtrs,pointsIdByQuadrant.at(i),boundingBoxes.at(i),levelRemaining-1,nodeCapacity);
+                nodes.at(rootId).childrenId.at(i) = childId;
+            }
+        }
+        return rootId;
+    }
+
     array<ELEMENTS_PTR,4> splitElementsPtrsByQuadrant(const ELEMENTS_PTR &elementsPtrs,  const array<AABB<T>,4> &boundingBoxes) const{
             array<ELEMENTS_PTR,4> elementsPtrsByQuadrant;
             for(auto const &element: elementsPtrs){
@@ -108,6 +143,19 @@ protected:
             }
             return elementsPtrsByQuadrant;
     }
+
+    array<vector<int>,4> splitElementsIdByQuadrant(const ELEMENTS_PTR &elementsPtrs, const vector<int> &elementsId,  const array<AABB<T>,4> &boundingBoxes) const{
+            array<vector<int>,4> elementsIdByQuadrant;
+            for(auto elementId: elementsId){
+                for(int i=0;i<4;i++){
+                    if(elementsPtrs.at(elementId)->aabb.doesOverlap(boundingBoxes.at(i))){
+                        elementsIdByQuadrant.at(i).push_back(elementId);
+                    }
+                }
+            }
+            return elementsIdByQuadrant;
+    }
+
     void getAllOverlappingElementTuplesRecursively(vector<tuple<ELEMENT_PTR,ELEMENT_PTR>> &tuples, int nodeId) const{
         if(nodeId != -1){
             auto node = nodes.at(nodeId);
