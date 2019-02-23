@@ -31,7 +31,9 @@ public:
             T boundingBoxHeight = boundingBox.yMax - boundingBox.yMin;
             int x = boundingBox.xMin + rand()%boundingBoxWidth;
             int y = boundingBox.yMin + rand()%boundingBoxHeight;
-            elements.at(i) = std::make_shared<QuadTreeElement<T>>(QuadTreeElement<T>(AABB<T>(x,y,x+boundingBoxWidth,y+boundingBoxHeight)));
+            int width = minSize + rand()%(maxSize-minSize);
+            int height = minSize + rand()%(maxSize-minSize);
+            elements.at(i) = std::make_shared<QuadTreeElement<T>>(QuadTreeElement<T>(AABB<T>(x,y,x+width,y+height)));
         }
         return  elements;
     }
@@ -66,6 +68,7 @@ public:
                     minSize,
                     maxSize);
         quadTree->setElements(elements,boundingBox, treeDepth, maxElementsPerBox);
+
         std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
         if(benchmarkTypes.count(QUAD_TREE_BENCHMARK_TYPE::SET_ELEMENTS)>0){
             std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
@@ -74,7 +77,7 @@ public:
             }
             std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
-            std::cout<<"setElements took "<<duration<<" miliseconds. Average: "<<(double) duration/(double) numberOfTests<<" miliseconds per single test"<<std::endl;
+            std::cout<<"setElements took "<<duration<<" miliseconds. Average: "<<(double) duration/(double) numberOfTests<<" ms per single test"<<std::endl;
         }
         if(benchmarkTypes.count(QUAD_TREE_BENCHMARK_TYPE::GET_OVERLAPPING_ELEMENTS)>0){
             std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
@@ -83,7 +86,7 @@ public:
             }
             std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
-            std::cout<<"setElements took "<<duration<<" miliseconds. Average: "<<(double) duration/(double) numberOfTests<<" miliseconds per single test"<<std::endl;
+            std::cout<<"setElements took "<<duration<<" miliseconds. Average: "<<(double) duration/(double) numberOfTests<<" ms per single test"<<std::endl;
         }
         if(benchmarkTypes.count(QUAD_TREE_BENCHMARK_TYPE::GET_ALL_OVERLAPPING_TUPLES)>0){
             std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
@@ -92,8 +95,15 @@ public:
             }
             std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
-            std::cout<<"setElements took "<<duration<<" miliseconds. Average: "<<(double) duration/(double) numberOfTests<<" miliseconds per single test"<<std::endl;
+            std::cout<<"setElements took "<<duration<<" miliseconds. Average: "<<(double) duration/(double) numberOfTests<<" ms per single test"<<std::endl;
         }
+    }
+
+    void printElementConstructionStats() const{
+        std::cout<<"   Elements(): "<<QuadTreeElement<T>::countDefaultConstructor<<
+                   ", Elements(args): "<<QuadTreeElement<T>::countConstructor<<
+                   ", Elements(const &args): "<<QuadTreeElement<T>::countCopyConstructor<<
+                   ", Elements(&&args): "<<QuadTreeElement<T>::countMoveConstructor<<std::endl;
     }
 };
 

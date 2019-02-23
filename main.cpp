@@ -56,10 +56,11 @@ int main(int argc, char *argv[])
         quadTree = new QuadTreeModerate<int>();
                 QuadTreeBenchmark<int>().testQuadTree(
                             quadTree,
-                            20,
-                            400,
-                            {
-                                QUAD_TREE_BENCHMARK_TYPE::SET_ELEMENTS}
+                            10,
+                            1000
+//                            ,{
+//                                QUAD_TREE_BENCHMARK_TYPE::SET_ELEMENTS,
+//                                QUAD_TREE_BENCHMARK_TYPE::GET_ALL_OVERLAPPING_TUPLES}
                             );
     }else{
         QApplication a(argc, argv);

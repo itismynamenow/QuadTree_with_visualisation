@@ -61,8 +61,16 @@ struct AABB{
 //Inherit this class for object to be used with quad tree
 template <class T>
 struct QuadTreeElement{
-    QuadTreeElement(){}
-    QuadTreeElement(const AABB<T> &aabb):aabb(aabb){}
+    QuadTreeElement(){countDefaultConstructor;}
+    QuadTreeElement(const AABB<T> &aabb):aabb(aabb){countConstructor++;}
+    QuadTreeElement(const QuadTreeElement &another){
+        this->aabb = another.aabb;
+        countCopyConstructor++;
+    }
+    QuadTreeElement(QuadTreeElement &&another){
+        this->aabb = another.aabb;
+        countMoveConstructor++;
+    }
     bool doesOverlap(const AABB<T> &another)const{
         return aabb.doesOverlap(another);
     }
@@ -71,7 +79,19 @@ struct QuadTreeElement{
     }
 
     AABB<T> aabb;
+    static int countConstructor;
+    static int countDefaultConstructor;
+    static int countCopyConstructor;
+    static int countMoveConstructor;
 };
+template <class T>
+int QuadTreeElement<T>::countConstructor = 0;
+template <class T>
+int QuadTreeElement<T>::countDefaultConstructor = 0;
+template <class T>
+int QuadTreeElement<T>::countCopyConstructor = 0;
+template <class T>
+int QuadTreeElement<T>::countMoveConstructor = 0;
 
 template <class T>
 class QuadTree{
