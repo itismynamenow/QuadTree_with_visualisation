@@ -35,4 +35,5 @@ HEADERS += \
     quad_tree_widget.h \
     main_window.h \
     quad_tree_moderate.h \
-    quad_tree_benchmark.h
+    quad_tree_benchmark.h \
+    quad_tree_fast.h

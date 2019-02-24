@@ -31,9 +31,7 @@ public:
     typedef typename QuadTree<T>::ELEMENTS_PTR ELEMENTS_PTR;
     typedef typename QuadTree<T>::ELEMENT_PTR ELEMENT_PTR;
     typedef std::unordered_map<int,vector<int>> MAP;
-    typedef std::unordered_set<int> ELEMENT_ID_SET;
-//    typedef bool(*ELEMENT_COMPARATOR)(const ELEMENT_PTR &x, const ELEMENT_PTR &y);
-//    typedef std::set<ELEMENT_PTR,ELEMENT_COMPARATOR> ELEMENT_SET;
+    typedef std::unordered_set<int> SET;
 
     friend class QuadTreeModerateVisualionHelper<T>;
 
@@ -50,7 +48,7 @@ public:
         ELEMENTS_PTR placeHolder;
         return placeHolder;}
     virtual ELEMENTS_PTR getAllOverlappingElements() const override{
-        ELEMENT_ID_SET elementIdSet;
+        SET elementIdSet;
         getAllOverlappingElementsRecursively(elementIdSet,rootId);
         ELEMENTS_PTR overlappingElementsPtrs(elementIdSet.size());
         int i=0;
@@ -147,7 +145,7 @@ protected:
         }
     }
 
-    void getAllOverlappingElementsRecursively(ELEMENT_ID_SET &elementSet, int nodeId) const{
+    void getAllOverlappingElementsRecursively(SET &elementSet, int nodeId) const{
         if(nodeId != -1){
             auto node = nodes.at(nodeId);
             if(node.isLeaf()){

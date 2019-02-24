@@ -7,6 +7,8 @@
 #include <vector>
 #include <tuple>
 #include <ctime>
+#include <type_traits>
+
 using std::vector;
 using std::array;
 using std::shared_ptr;
@@ -64,8 +66,8 @@ template<typename T> struct is_shared_ptr<std::shared_ptr<T>> : std::true_type {
 template <class T>
 struct QuadTreeElement{
 
-//    typedef shared_ptr<QuadTreeElement<T>> ELEMENT_PTR;
-    typedef QuadTreeElement<T>* ELEMENT_PTR;
+    typedef shared_ptr<QuadTreeElement<T>> ELEMENT_PTR;
+//    typedef QuadTreeElement<T>* ELEMENT_PTR;
 
     QuadTreeElement(){countDefaultConstructor;}
     QuadTreeElement(const AABB<T> &aabb):aabb(aabb){countConstructor++;}
@@ -83,58 +85,6 @@ struct QuadTreeElement{
     bool doesOverlap(const  QuadTreeElement<T> &another)const{
         return aabb.doesOverlap(another.aabb);
     }
-    static ELEMENT_PTR makeQuadTreeElement(){
-        return ELEMENT_PTR();
-    }
-//    template<typename T_ = ELEMENT_PTR, std::enable_if<is_shared_ptr<T_>::value>* = nullptr>
-//    ELEMENT_PTR func()
-//    {
-//        std::cout << "shared ptr" << std::endl;
-//    }
-//    template<typename T_ = ELEMENT_PTR, std::enable_if<!is_shared_ptr<T_>::value>* = nullptr>
-//    ELEMENT_PTR func()
-//    {
-//        std::cout << "not shared ptr" << std::endl;
-//    }
-//    template<typename U = T, typename std::enable_if<std::is_same<U, int>::value>::type * = NULL>
-//    int MyFunction()
-//    {
-//      std::cout << "T is int." << std::endl;
-//      return 1;
-//    }
-
-//    template<typename U = T, typename std::enable_if<std::is_same<U, float>::value>::type * = NULL>
-//    int MyFunction()
-//    {
-//      std::cout << "T is not int." << std::endl;
-//      return 2;
-//    }
-//    template <class V=T, typename std::enable_if<std::is_same<V, int>::value>::type* = nullptr>
-//    int MyFunction()
-//    {
-//      std::cout << "T is int." << std::endl;
-//      return 1;
-//    }
-
-//    template <class V=T, typename std::enable_if<std::is_same<V, float>::value>::type* = nullptr>
-//    float MyFunction()
-//    {
-//      std::cout << "T is not int." << std::endl;
-//      return 2;
-//    }
-//    template <class V=ELEMENT_PTR1, typename std::enable_if<is_shared_ptr<V>::value>::type* = nullptr>
-//    int MyFunction()
-//    {
-//      std::cout << "T is shared pointer" << std::endl;
-//      return 1;
-//    }
-
-//    template <class V=ELEMENT_PTR1, typename std::enable_if<!is_shared_ptr<V>::value>::type* = nullptr>
-//    float MyFunction()
-//    {
-//      std::cout << "T is not shared pointer" << std::endl;
-//      return 2;
-//    }
 
     template <class V=ELEMENT_PTR, typename std::enable_if<is_shared_ptr<V>::value>::type* = nullptr>
     static ELEMENT_PTR makeElement(const AABB<T> &aabb)
@@ -142,7 +92,7 @@ struct QuadTreeElement{
       return std::make_shared<QuadTreeElement<T>>(QuadTreeElement(aabb));
     }
 
-    template <class V=ELEMENT_PTR, typename std::enable_if<!is_shared_ptr<V>::value>::type* = nullptr>
+    template <class V=ELEMENT_PTR, typename std::enable_if<std::is_pointer<V>::value>::type* = nullptr>
     static ELEMENT_PTR makeElement(const AABB<T> &aabb)
     {
       return new QuadTreeElement<T>(aabb);

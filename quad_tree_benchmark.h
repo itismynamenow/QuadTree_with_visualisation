@@ -3,6 +3,7 @@
 #include <ctime>
 #include <chrono>
 #include <set>
+#include <cmath>
 
 #include "quad_tree.h"
 #include "quad_tree_slow.h"
@@ -29,12 +30,11 @@ public:
         for(int i=0;i<numberOfElements;i++){
             T boundingBoxWidth = boundingBox.xMax - boundingBox.xMin;
             T boundingBoxHeight = boundingBox.yMax - boundingBox.yMin;
-            int x = boundingBox.xMin + rand()%boundingBoxWidth;
-            int y = boundingBox.yMin + rand()%boundingBoxHeight;
-            int width = minSize + rand()%(maxSize-minSize);
-            int height = minSize + rand()%(maxSize-minSize);
+            T x = boundingBox.xMin + std::fmod(rand(),boundingBoxWidth);
+            T y = boundingBox.yMin + std::fmod(rand(),boundingBoxHeight);
+            T width = minSize + std::fmod(rand(),(maxSize-minSize));
+            T height = minSize + std::fmod(rand(),(maxSize-minSize));
             elements.at(i) = QuadTreeElement<T>::makeElement(AABB<T>(x,y,x+width,y+height));
-//            elements.at(i) = std::make_shared<QuadTreeElement<T>>(QuadTreeElement<T>(AABB<T>(x,y,x+width,y+height)));
         }
         return  elements;
     }
