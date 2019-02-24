@@ -10,6 +10,7 @@
 #include <tuple>
 #include <ctime>
 #include <cmath>
+#include <type_traits>
 
 #include "quad_tree.h"
 #include "quad_tree_slow.h"
@@ -21,6 +22,13 @@ using std::unique_ptr;
 using std::tuple;
 
 struct MyCustomElement: public QuadTreeElement<int>{
+
+    typedef int T;
+    typedef QuadTreeElement<int>::ELEMENT_PTR ELEMENT_PTR;
+    typedef  std::conditional<  is_shared_ptr<ELEMENT_PTR>::value,
+                                shared_ptr<MyCustomElement>,
+                                MyCustomElement*>::type Type;
+
     MyCustomElement(){
         init();
     }
@@ -28,11 +36,23 @@ struct MyCustomElement: public QuadTreeElement<int>{
         pos = QVector2D(aabb.xMin,aabb.yMin);
         init();
     }
+    virtual ~MyCustomElement(){}
     void init(){
         QMatrix4x4 rotationMat;
         rotationMat.rotate(rand()%360,0,0,1);
         direction = (QVector2D(1,0).toVector4D()*rotationMat).toVector2D();
         speed = 1+rand()%3;
+    }
+    template <class V=ELEMENT_PTR, typename std::enable_if<is_shared_ptr<V>::value>::type* = nullptr>
+    static shared_ptr<MyCustomElement> makeElement(const AABB<int> &aabb, QColor color=Qt::yellow)
+    {
+      return std::make_shared<MyCustomElement>(MyCustomElement(aabb,color));
+    }
+
+    template <class V=ELEMENT_PTR, typename std::enable_if<std::is_pointer<V>::value>::type* = nullptr>
+    static MyCustomElement* makeElement(const AABB<int> &aabb, QColor color=Qt::yellow)
+    {
+      return new MyCustomElement(aabb,color);
     }
     void update(){
         pos = pos + direction * speed;
@@ -49,22 +69,24 @@ struct MyCustomElementsHolder{
         visualisationHelper = quadTree->getVisualisationHelper();
     }
     void addElement(const AABB<int> &aabb, QColor color=Qt::yellow){
-        elementsPtrs.push_back(std::make_shared<MyCustomElement>(MyCustomElement(aabb,color)));
-        vector<shared_ptr<QuadTreeElement<int>>> elementsCastedPtrs(elementsPtrs.begin(),elementsPtrs.end());
+//        elementsPtrs.push_back(std::make_shared<MyCustomElement>(MyCustomElement(aabb,color)));
+        elementsPtrs.push_back(MyCustomElement::makeElement(aabb,color));
+        vector<QuadTreeElement<int>::Type> elementsCastedPtrs(elementsPtrs.begin(),elementsPtrs.end());
         quadTree->setElements(elementsCastedPtrs,AABB<int>(0,0,799,799));
     }
     void addElements(vector<AABB<int>> aabbs){
         for(auto aabb: aabbs){
-            elementsPtrs.push_back(std::make_shared<MyCustomElement>(MyCustomElement(aabb)));
+            elementsPtrs.push_back(MyCustomElement::makeElement(aabb));
         }
-        vector<shared_ptr<QuadTreeElement<int>>> elementsCastedPtrs(elementsPtrs.begin(),elementsPtrs.end());
+        vector<QuadTreeElement<int>::Type> elementsCastedPtrs(elementsPtrs.begin(),elementsPtrs.end());
         quadTree->setElements(elementsCastedPtrs,boundingBox,6,4);
     }
-    vector<shared_ptr<MyCustomElement>> getOverlappingObjects(){
+    vector<QuadTreeElement<int>::Type> getOverlappingObjects(){
         auto overlappingElements = quadTree->getAllOverlappingElements();
-        vector<shared_ptr<MyCustomElement>> overlappingElementsCasted(overlappingElements.size());
+        vector<QuadTreeElement<int>::Type> overlappingElementsCasted(overlappingElements.size());
         for(int i=0;i<overlappingElements.size();i++){
-            overlappingElementsCasted.at(i) = std::static_pointer_cast<MyCustomElement>(overlappingElements.at(i));
+//            overlappingElementsCasted.at(i) = std::dynamic_pointer_cast<MyCustomElement>(overlappingElements.at(i));
+            overlappingElementsCasted.at(i) = QuadTreeElement<int>::dynamicCast<MyCustomElement>(overlappingElements.at(i));
         }
         return overlappingElementsCasted;
     }
@@ -76,8 +98,10 @@ struct MyCustomElementsHolder{
 
         auto overlappingTuples = quadTree->getAllOverlappingElementTuples();
         for(auto overlapingTuple: overlappingTuples){
-            auto element0 = std::static_pointer_cast<MyCustomElement>(std::get<0>(overlapingTuple));
-            auto element1 = std::static_pointer_cast<MyCustomElement>(std::get<1>(overlapingTuple));
+//            auto element0 = std::static_pointer_cast<MyCustomElement>(std::get<0>(overlapingTuple));
+//            auto element1 = std::static_pointer_cast<MyCustomElement>(std::get<1>(overlapingTuple));
+            auto element0 = QuadTreeElement<int>::dynamicCast<MyCustomElement>(std::get<0>(overlapingTuple));
+            auto element1 = QuadTreeElement<int>::dynamicCast<MyCustomElement>(std::get<1>(overlapingTuple));
             int width0 =  element0->aabb.xMax - element0->aabb.xMin;
             int height0 = element0->aabb.yMax - element0->aabb.yMin;
             int width1 =  element1->aabb.xMax - element1->aabb.xMin;
@@ -124,7 +148,8 @@ struct MyCustomElementsHolder{
             element->update();
         }
     }
-    vector<shared_ptr<MyCustomElement>> elementsPtrs;
+//    vector<shared_ptr<MyCustomElement>> elementsPtrs;
+    vector<MyCustomElement::Type> elementsPtrs;
     unique_ptr<QuadTree<int>> quadTree;
     const QuadTreeVisualionHelper<int> *visualisationHelper;
     AABB<int> boundingBox{0,0,799,799};

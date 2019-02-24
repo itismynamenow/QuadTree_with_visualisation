@@ -68,6 +68,9 @@ struct QuadTreeElement{
 
     typedef shared_ptr<QuadTreeElement<T>> ELEMENT_PTR;
 //    typedef QuadTreeElement<T>* ELEMENT_PTR;
+    typedef typename std::conditional<  is_shared_ptr<ELEMENT_PTR>::value,
+                                shared_ptr<QuadTreeElement<T>>,
+                                QuadTreeElement<T>*>::type Type;
 
     QuadTreeElement(){countDefaultConstructor;}
     QuadTreeElement(const AABB<T> &aabb):aabb(aabb){countConstructor++;}
@@ -79,10 +82,11 @@ struct QuadTreeElement{
         this->aabb = another.aabb;
         countMoveConstructor++;
     }
-    bool doesOverlap(const AABB<T> &another)const{
+    virtual ~QuadTreeElement(){}
+    virtual bool doesOverlap(const AABB<T> &another)const{
         return aabb.doesOverlap(another);
     }
-    bool doesOverlap(const  QuadTreeElement<T> &another)const{
+    virtual bool doesOverlap(const  QuadTreeElement<T> &another)const{
         return aabb.doesOverlap(another.aabb);
     }
 
@@ -96,6 +100,18 @@ struct QuadTreeElement{
     static ELEMENT_PTR makeElement(const AABB<T> &aabb)
     {
       return new QuadTreeElement<T>(aabb);
+    }
+
+    template <class U,class V=ELEMENT_PTR, typename std::enable_if<is_shared_ptr<V>::value>::type* = nullptr>
+    static std::shared_ptr<U> dynamicCast(ELEMENT_PTR element)
+    {
+      return std::dynamic_pointer_cast<U>(element);
+    }
+
+    template <class U,class V=ELEMENT_PTR, typename std::enable_if<std::is_pointer<V>::value>::type* = nullptr>
+    static U* dynamicCast(ELEMENT_PTR element)
+    {
+      return dynamic_cast<U*>(element);
     }
 
     AABB<T> aabb;

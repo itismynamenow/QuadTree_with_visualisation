@@ -49,6 +49,9 @@ public:
     virtual const QuadTreeVisualionHelper<T> *getVisualisationHelper() const=0;
 
 protected:
+
+
+
     vector<QuadTreeFastNode<T>> nodes;
     vector<AABB<T>> boundingBoxes;
     ELEMENTS_PTR elementsPtrs;
