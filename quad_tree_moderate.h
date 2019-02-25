@@ -179,7 +179,7 @@ template <class T>
 class QuadTreeModerateVisualionHelper: public QuadTreeVisualionHelper<T>{
 public:
     QuadTreeModerateVisualionHelper(QuadTreeModerate<T>* quadTree): quadTree(quadTree){}
-    virtual vector<AABB<T>> getNonLeafNodesBoundingBoxes() const{
+    virtual vector<AABB<T>> getNonLeafNodesBoundingBoxes() const override{
         vector<AABB<T>> boundingBoxes;
         getNonLeafNodesBoundingBoxesRecursivly(boundingBoxes,quadTree->rootId);
         return boundingBoxes;

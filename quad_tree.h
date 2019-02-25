@@ -39,6 +39,11 @@ struct AABB{
                 (another.yMin>=yMin && another.yMin<=yMax);
         return xOverlap && yOverlap;
     }
+    bool isCompletlyInside(const AABB &another)const{
+        bool insideXRange = xMin>=another.xMin && xMax<=another.xMax;
+        bool insideYRange = yMin>=another.yMin && yMax<=another.yMax;
+        return insideXRange && insideYRange;
+    }
     array<AABB<T>,4> split() const {
         T xCtr = xMin+(xMax - xMin)/2;
         T yCtr = yMin+(yMax - yMin)/2;
@@ -66,13 +71,15 @@ template<typename T> struct is_shared_ptr<std::shared_ptr<T>> : std::true_type {
 template <class T>
 struct QuadTreeElement{
 
-    typedef shared_ptr<QuadTreeElement<T>> ELEMENT_PTR;
-//    typedef QuadTreeElement<T>* ELEMENT_PTR;
+    //bool determines if shared or normal pointers will be used to keep data
+    typedef typename std::conditional   <true,
+                                        shared_ptr<QuadTreeElement<T>>,
+                                        QuadTreeElement<T>*>::type ELEMENT_PTR;
     typedef typename std::conditional<  is_shared_ptr<ELEMENT_PTR>::value,
-                                shared_ptr<QuadTreeElement<T>>,
-                                QuadTreeElement<T>*>::type Type;
+                                        shared_ptr<QuadTreeElement<T>>,
+                                        QuadTreeElement<T>*>::type Type;
 
-    QuadTreeElement(){countDefaultConstructor;}
+    QuadTreeElement(){countDefaultConstructor++;}
     QuadTreeElement(const AABB<T> &aabb):aabb(aabb){countConstructor++;}
     QuadTreeElement(const QuadTreeElement &another){
         this->aabb = another.aabb;

@@ -17,17 +17,30 @@ int main(int argc, char *argv[])
         quadTree = new QuadTreeModerate<NUM>();
                 QuadTreeBenchmark<NUM>().testQuadTree(
                             quadTree,
-                            20,
-                            4000,
+                            3,
+                            900,
                             {
                                 QUAD_TREE_BENCHMARK_TYPE::SET_ELEMENTS,
                                 QUAD_TREE_BENCHMARK_TYPE::GET_ALL_OVERLAPPING_TUPLES,
                                 QUAD_TREE_BENCHMARK_TYPE::GET_OVERLAPPING_ELEMENTS},
                             10,
                             10,
-                            AABB<NUM>(0,0,4999,4999)
+                            AABB<NUM>(0,0,333,333)
                         );
         delete quadTree;
+        quadTree = new QuadTreeFast<NUM>();
+                QuadTreeBenchmark<NUM>().testQuadTree(
+                            quadTree,
+                            3,
+                            900,
+                            {
+                                QUAD_TREE_BENCHMARK_TYPE::SET_ELEMENTS,
+                                QUAD_TREE_BENCHMARK_TYPE::GET_ALL_OVERLAPPING_TUPLES,
+                                QUAD_TREE_BENCHMARK_TYPE::GET_OVERLAPPING_ELEMENTS},
+                            10,
+                            10,
+                            AABB<NUM>(0,0,333,333)
+                        );
     }else{
         QApplication a(argc, argv);
         MainWindow w;
